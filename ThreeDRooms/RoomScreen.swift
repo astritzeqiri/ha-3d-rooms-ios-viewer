@@ -53,22 +53,25 @@ struct RoomScreen: View {
         }
         .statusBarHidden()
         .persistentSystemOverlays(.hidden)
-        .task(id: "\(view.id)#\(attempt)") { await load() }
+        .task(id: [view.id, String(attempt), model.connectionURL?.absoluteString]) { await load() }
         .task { await hintOnce() }
     }
 
     private func load() async {
         failure = nil
-        guard let server = model.server else { return }
+        page = nil
+        guard let server = model.connectionURL, let loginOrigin = model.server else { return }
         do {
             // A fresh token goes with every load, so the page never starts expired.
             let tokens = try await model.freshTokens()
+            guard !Task.isCancelled, server == model.connectionURL else { return }
             page = PageLoad(url: HomeAssistant.viewURL(server, viewID: view.id),
-                            script: HomeAssistant.tokenScript(tokens, origin: server),
+                            script: HomeAssistant.tokenScript(tokens, origin: server, loginOrigin: loginOrigin),
                             origin: server, attempt: attempt)
         } catch HAError.signedOut {
             // Signed out: the root shows the sign-in screen.
         } catch {
+            guard !Task.isCancelled, server == model.connectionURL else { return }
             failure = error.localizedDescription
         }
     }

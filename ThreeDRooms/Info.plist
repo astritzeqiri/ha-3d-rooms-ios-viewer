@@ -27,8 +27,12 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Use Face ID to unlock your saved 3D Rooms views.</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>3D Rooms connects to your Home Assistant on the local network.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>3D Rooms checks your Wi-Fi name to use your internal Home Assistant address on your home network.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

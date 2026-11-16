@@ -107,6 +107,7 @@ private struct ViewCard: View {
 
 struct SettingsView: View {
     @Environment(AppModel.self) private var model
+    @Environment(AppLock.self) private var appLock
     @State private var confirmSignOut = false
 
     var body: some View {
@@ -114,12 +115,27 @@ struct SettingsView: View {
         Form {
             Section("Home Assistant") {
                 LabeledContent("Server", value: model.server?.absoluteString ?? "—")
+                NavigationLink("Home Wi-Fi") { HomeNetworkSettings(wifi: model.wifi) }
                 Button("Sign out", role: .destructive) { confirmSignOut = true }
             }
             Section {
                 Toggle("Keep screen on", isOn: $model.keepScreenOn)
             } footer: {
                 Text("Useful for a wall-mounted iPad or a phone on a stand.")
+            }
+            Section {
+                Toggle("Require Face ID", isOn: Binding(
+                    get: { appLock.enabled },
+                    set: { value in Task { await appLock.setEnabled(value) } }
+                ))
+                .disabled(appLock.authenticating || (!appLock.enabled && !appLock.supportsFaceID))
+                if let message = appLock.message {
+                    Text(message).font(.footnote).foregroundStyle(.secondary)
+                }
+            } footer: {
+                Text(appLock.supportsFaceID || appLock.enabled
+                     ? "Unlock when opening or returning to 3D Rooms. Your device passcode is available as a fallback."
+                     : "This setting requires a device with Face ID.")
             }
             Section("Switching views") {
                 Text("Swipe in from the left edge of a view, or long-press the app icon and choose Switch view.")
@@ -130,5 +146,69 @@ struct SettingsView: View {
         .confirmationDialog("Sign out of Home Assistant?", isPresented: $confirmSignOut, titleVisibility: .visible) {
             Button("Sign out", role: .destructive) { model.signOut() }
         }
+    }
+}
+
+private struct HomeNetworkSettings: View {
+    let wifi: HomeWiFi
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.openURL) private var openURL
+    @State private var name: String
+    @State private var address: String
+    @State private var error: String?
+
+    init(wifi: HomeWiFi) {
+        self.wifi = wifi
+        _name = State(initialValue: wifi.configuration?.name ?? "")
+        _address = State(initialValue: wifi.configuration?.url.absoluteString ?? "")
+    }
+
+    var body: some View {
+        Form {
+            Section {
+                TextField("Wi-Fi name", text: $name)
+                    .textInputAutocapitalization(.never).autocorrectionDisabled()
+                TextField("Internal URL", text: $address)
+                    .keyboardType(.URL).textInputAutocapitalization(.never).autocorrectionDisabled()
+            } footer: {
+                Text("Enter the exact Wi-Fi name and the address of the same Home Assistant, such as http://homeassistant.local:8123. Everywhere else, 3D Rooms uses your sign-in address.")
+            }
+            if let config = wifi.configuration {
+                Section("Current connection") {
+                    Text(!wifi.resolved ? "Checking Wi-Fi…" :
+                            (config.address(on: wifi.ssid, external: nil) != nil ? "Using internal URL" : "Using sign-in address"))
+                    if wifi.needsPermission {
+                        Text("Allow precise location while using 3D Rooms so iOS can share the Wi-Fi name.")
+                        Button("Open iOS Settings") {
+                            if let url = URL(string: UIApplication.openSettingsURLString) { openURL(url) }
+                        }
+                    }
+                }
+            }
+            if let error { Text(error).foregroundStyle(.red) }
+            Button("Save") {
+                let input = address.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, name.utf8.count <= 32 else {
+                    error = "Enter a Wi-Fi name of up to 32 bytes."
+                    return
+                }
+                guard let url = HomeAssistant.origin(from: input),
+                      let parts = URLComponents(string: input.contains("://") ? input : "http://" + input),
+                      parts.user == nil, parts.password == nil, parts.query == nil, parts.fragment == nil,
+                      ["", "/"].contains(parts.path), (1...65535).contains(parts.port ?? 80) else {
+                    error = "Enter a server address with an optional port, without a path or login details."
+                    return
+                }
+                wifi.save(HomeNetwork(name: name, url: url))
+                dismiss()
+            }
+            if wifi.configuration != nil {
+                Button("Remove home network", role: .destructive) {
+                    wifi.save(nil)
+                    dismiss()
+                }
+            }
+        }
+        .navigationTitle("Home Wi-Fi")
     }
 }

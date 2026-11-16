@@ -9,7 +9,7 @@ settings:
   base:
     SWIFT_VERSION: "5.0"
     MARKETING_VERSION: "1.0"
-    CURRENT_PROJECT_VERSION: "3"
+    CURRENT_PROJECT_VERSION: "4"
     DEVELOPMENT_TEAM: F6S2ZKW8YX
     CODE_SIGN_STYLE: Automatic
 targets:
@@ -28,10 +28,16 @@ targets:
         TARGETED_DEVICE_FAMILY: "1,2"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ENABLE_PREVIEWS: YES
+    entitlements:
+      path: ThreeDRooms/ThreeDRooms.entitlements
+      properties:
+        com.apple.developer.networking.wifi-info: true
     info:
       path: ThreeDRooms/Info.plist
       properties:
         CFBundleDisplayName: 3D Rooms
+        NSLocationWhenInUseUsageDescription: 3D Rooms checks your Wi-Fi name to use your internal Home Assistant address on your home network.
+        NSFaceIDUsageDescription: Use Face ID to unlock your saved 3D Rooms views.
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         UILaunchScreen:

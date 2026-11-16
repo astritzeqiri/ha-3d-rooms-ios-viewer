@@ -15,6 +15,11 @@ final class AppModel {
     var server: URL? {
         didSet { defaults.set(server?.absoluteString, forKey: "server") }
     }
+    let wifi = HomeWiFi()
+    var connectionURL: URL? {
+        guard let config = wifi.configuration else { return server }
+        return wifi.resolved ? config.address(on: wifi.ssid, external: server) : nil
+    }
     var tokens: HATokens? {
         didSet { if tokens != oldValue { Keychain.save(tokens) } }
     }
@@ -45,31 +50,39 @@ final class AppModel {
     var isSignedIn: Bool { server != nil && tokens != nil }
 
     func signedIn(origin: URL, tokens: HATokens) {
-        if server != origin { defaultView = nil }
+        if server != origin {
+            defaultView = nil
+            wifi.save(nil)
+        }
         server = origin
         self.tokens = tokens
     }
 
     /// A current access token, refreshed when it is about to expire.
     func freshTokens() async throws -> HATokens {
-        guard let server, let current = tokens else { throw HAError.signedOut }
+        guard let server, let endpoint = connectionURL, let current = tokens else { throw HAError.signedOut }
         if current.expires.timeIntervalSinceNow > 120 { return current }
         do {
-            let next = try await HomeAssistant.refresh(current, origin: server)
+            let next = try await HomeAssistant.refresh(current, origin: endpoint, loginOrigin: server)
             if tokens?.refreshToken == current.refreshToken { tokens = next }
             return next
         } catch HAError.signedOut {
+            guard tokens?.refreshToken == current.refreshToken, connectionURL == endpoint else { throw CancellationError() }
+            guard endpoint == server else { throw HAError.server("The internal server rejected this login. Check your internal URL in Settings.") }
             tokens = nil
             throw HAError.signedOut
         }
     }
 
     func loadViews() async {
-        guard let server else { return }
+        guard let server = connectionURL, let session = tokens?.refreshToken else { return }
         listState = .loading
         do {
             let token = try await freshTokens().accessToken
-            views = try await HomeAssistant.savedViews(origin: server, accessToken: token)
+            guard !Task.isCancelled, server == connectionURL, session == tokens?.refreshToken else { return }
+            let result = try await HomeAssistant.savedViews(origin: server, accessToken: token)
+            guard !Task.isCancelled, server == connectionURL, session == tokens?.refreshToken else { return }
+            views = result
             listState = .loaded
             // Keep the remembered title current; forget a view that was deleted.
             if let chosen = defaultView {
@@ -81,6 +94,7 @@ final class AppModel {
             }
             updateQuickActions()
         } catch {
+            guard !Task.isCancelled, server == connectionURL, session == tokens?.refreshToken else { return }
             listState = .failed(error.localizedDescription)
         }
     }
@@ -91,7 +105,8 @@ final class AppModel {
     }
 
     func signOut() {
-        if let server, let tokens { Task { await HomeAssistant.revoke(tokens, origin: server) } }
+        if let endpoint = connectionURL ?? server, let tokens { Task { await HomeAssistant.revoke(tokens, origin: endpoint) } }
+        wifi.save(nil)
         tokens = nil
         defaultView = nil
         views = []
@@ -136,6 +151,27 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
 }
 
 final class SceneDelegate: NSObject, UIWindowSceneDelegate {
+    private var privacyWindow: UIWindow?
+
+    func sceneWillResignActive(_ scene: UIScene) {
+        guard AppLock.shared.enabled, let scene = scene as? UIWindowScene else { return }
+        let cover = UIWindow(windowScene: scene)
+        cover.rootViewController = UIViewController()
+        cover.rootViewController?.view.backgroundColor = .black
+        cover.windowLevel = .alert + 1
+        cover.isHidden = false
+        privacyWindow = cover
+    }
+
+    func sceneDidEnterBackground(_ scene: UIScene) {
+        AppLock.shared.enteredBackground()
+    }
+
+    func sceneDidBecomeActive(_ scene: UIScene) {
+        privacyWindow?.isHidden = true
+        privacyWindow = nil
+    }
+
     func windowScene(_ windowScene: UIWindowScene, performActionFor item: UIApplicationShortcutItem,
                      completionHandler: @escaping (Bool) -> Void) {
         Task { @MainActor in

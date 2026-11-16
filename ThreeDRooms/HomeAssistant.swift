@@ -102,9 +102,9 @@ enum HomeAssistant {
         return HATokens(accessToken: access, refreshToken: refresh, expires: expiry(body))
     }
 
-    static func refresh(_ tokens: HATokens, origin: URL) async throws -> HATokens {
+    static func refresh(_ tokens: HATokens, origin: URL, loginOrigin: URL) async throws -> HATokens {
         let body = try await token(origin, [
-            "grant_type": "refresh_token", "refresh_token": tokens.refreshToken, "client_id": clientID(origin),
+            "grant_type": "refresh_token", "refresh_token": tokens.refreshToken, "client_id": clientID(loginOrigin),
         ])
         guard let access = body["access_token"] as? String else { throw HAError.signedOut }
         return HATokens(accessToken: access, refreshToken: tokens.refreshToken, expires: expiry(body))
@@ -212,10 +212,10 @@ enum HomeAssistant {
 
     /// Script that hands the login to the page before it starts. The page signs
     /// in with `localStorage.hassTokens`, the same store Home Assistant uses.
-    static func tokenScript(_ tokens: HATokens, origin: URL) -> String {
+    static func tokenScript(_ tokens: HATokens, origin: URL, loginOrigin: URL) -> String {
         let payload: [String: Any] = [
             "hassUrl": origin.absoluteString,
-            "clientId": clientID(origin),
+            "clientId": clientID(loginOrigin),
             "access_token": tokens.accessToken,
             "refresh_token": tokens.refreshToken,
             "token_type": "Bearer",

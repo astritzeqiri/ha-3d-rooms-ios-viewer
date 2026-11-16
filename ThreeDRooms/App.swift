@@ -5,9 +5,35 @@ struct ThreeDRoomsApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var delegate
     @State private var model = AppModel.shared
 
+    @State private var appLock = AppLock.shared
+    @Environment(\.scenePhase) private var phase
+
     var body: some Scene {
         WindowGroup {
-            RootView()
+            Group {
+                if appLock.locked {
+                    VStack(spacing: 20) {
+                        Image(systemName: "lock.fill").font(.largeTitle)
+                        Text("3D Rooms is locked").font(.title2.bold())
+                        Button("Unlock 3D Rooms") { Task { await appLock.unlock() } }
+                            .buttonStyle(.borderedProminent)
+                            .disabled(appLock.authenticating)
+                        if let message = appLock.message {
+                            Text(message).font(.footnote).multilineTextAlignment(.center)
+                        }
+                    }
+                    .padding()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Theme.background.ignoresSafeArea())
+                } else {
+                    RootView()
+                }
+            }
+                .onChange(of: phase, initial: true) { _, phase in
+                    if phase != .inactive { model.wifi.setForeground(phase == .active) }
+                    if phase == .active { Task { await appLock.becameActive() } }
+                }
+                .environment(appLock)
                 .environment(model)
                 .preferredColorScheme(.dark)
                 .tint(Theme.accent)
@@ -41,7 +67,7 @@ struct RootView: View {
         }
         .background(Theme.background.ignoresSafeArea())
         // The list also feeds the home screen quick actions, so it refreshes on launch.
-        .task(id: model.tokens?.refreshToken) {
+        .task(id: [model.tokens?.refreshToken, model.connectionURL?.absoluteString]) {
             if model.isSignedIn { await model.loadViews() }
         }
     }

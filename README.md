@@ -2,6 +2,10 @@
 
 An iPhone and iPad viewer for the [3D Rooms Home Assistant integration](https://github.com/astritzeqiri/ha-3d-rooms). Choose a saved room, floor or house view and the app opens it full screen on each launch. On iOS 18 or later, you can also open the app from a Home Screen widget, the circular widget below the Lock Screen clock, a bottom Lock Screen control, or Control Center.
 
+To protect your rooms on a shared device, open the view picker, tap the settings gear and turn on **Require Face ID**. Once enabled, the app locks whenever you leave it. You can use your device passcode as a fallback or turn the setting off in the same place.
+
+In **Settings → Home Wi-Fi**, enter the exact Wi-Fi name and the internal URL of the same Home Assistant server. Allow precise location while using the app so iOS can share the network name. On other networks or when the name is unavailable, the app uses the address you signed in with. Use **Remove home network** to return to a single address.
+
 ## Build and run from source
 
 1. On a Mac, install Xcode with the iOS SDK and an iPhone simulator runtime. Build 3 was compiled with Xcode 27.2. The viewer requires iOS or iPadOS 17 or later.
