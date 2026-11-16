@@ -6,6 +6,8 @@ import WebKit
 struct RoomScreen: View {
     let view: ViewRef
     @Environment(AppModel.self) private var model
+    @Environment(AppLock.self) private var appLock
+    @State private var pageReady = false
     @State private var page: PageLoad?
     @State private var failure: String?
     @State private var showHint = false
@@ -15,7 +17,7 @@ struct RoomScreen: View {
         ZStack {
             Theme.background.ignoresSafeArea()
             if let page {
-                RoomWebView(page: page) { message in
+                RoomWebView(page: page, locked: appLock.locked, onReady: { pageReady = true }) { message in
                     failure = message
                 }
                 .ignoresSafeArea()
@@ -36,6 +38,9 @@ struct RoomScreen: View {
                 }
                 .ignoresSafeArea()
             }
+            if appLock.enabled && (!pageReady || model.connectionURL != page?.origin) && failure == nil {
+                LockScreen(appLock: appLock, openingRoom: true)
+            }
             if let failure {
                 ContentUnavailableView {
                     Label("Can't open \(view.title)", systemImage: "wifi.exclamationmark")
@@ -47,25 +52,28 @@ struct RoomScreen: View {
                 }
                 .background(Theme.background.ignoresSafeArea())
             }
-            if showHint {
+            if showHint && (!appLock.enabled || pageReady) {
                 SwipeHint().transition(.opacity)
             }
         }
         .statusBarHidden()
         .persistentSystemOverlays(.hidden)
-        .task(id: [view.id, String(attempt), model.connectionURL?.absoluteString]) { await load() }
+        .task(id: [view.id, String(attempt), model.connectionURL?.absoluteString, String(appLock.locked)]) { await load() }
         .task { await hintOnce() }
     }
 
     private func load() async {
+        guard !appLock.locked, let server = model.connectionURL, let loginOrigin = model.server else { return }
+        let url = HomeAssistant.viewURL(server, viewID: view.id)
+        if let page, page.url == url, page.attempt == attempt, failure == nil { return }
+        pageReady = false
         failure = nil
         page = nil
-        guard let server = model.connectionURL, let loginOrigin = model.server else { return }
         do {
             // A fresh token goes with every load, so the page never starts expired.
             let tokens = try await model.freshTokens()
             guard !Task.isCancelled, server == model.connectionURL else { return }
-            page = PageLoad(url: HomeAssistant.viewURL(server, viewID: view.id),
+            page = PageLoad(url: url,
                             script: HomeAssistant.tokenScript(tokens, origin: server, loginOrigin: loginOrigin),
                             origin: server, attempt: attempt)
         } catch HAError.signedOut {
@@ -114,11 +122,13 @@ struct PageLoad: Equatable {
 
 private struct RoomWebView: UIViewRepresentable {
     let page: PageLoad
+    let locked: Bool
+    let onReady: () -> Void
     let onFailure: (String) -> Void
 
     func makeCoordinator() -> Coordinator { Coordinator(self) }
 
-    func makeUIView(context: Context) -> WKWebView {
+    func makeUIView(context: Context) -> UIView {
         let configuration = WKWebViewConfiguration()
         // Persistent, so room models stay cached between launches.
         configuration.websiteDataStore = .default()
@@ -137,10 +147,21 @@ private struct RoomWebView: UIViewRepresentable {
         #if DEBUG
         web.isInspectable = true
         #endif
-        return web
+        web.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        context.coordinator.web = web
+        return UIView()
     }
 
-    func updateUIView(_ web: WKWebView, context: Context) {
+    func updateUIView(_ container: UIView, context: Context) {
+        guard let web = context.coordinator.web else { return }
+        if locked {
+            web.removeFromSuperview()
+            return
+        }
+        if web.superview == nil {
+            web.frame = container.bounds
+            container.addSubview(web)
+        }
         context.coordinator.parent = self
         guard context.coordinator.loaded != page else { return }
         context.coordinator.loaded = page
@@ -152,6 +173,7 @@ private struct RoomWebView: UIViewRepresentable {
 
     final class Coordinator: NSObject, WKNavigationDelegate {
         var parent: RoomWebView
+        var web: WKWebView?
         var loaded: PageLoad?
         init(_ parent: RoomWebView) { self.parent = parent }
 
@@ -166,6 +188,15 @@ private struct RoomWebView: UIViewRepresentable {
                 return
             }
             decisionHandler(.allow)
+        }
+
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            parent.onReady()
+        }
+
+        func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+            guard (error as NSError).code != NSURLErrorCancelled else { return }
+            parent.onFailure(error.localizedDescription)
         }
 
         func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {

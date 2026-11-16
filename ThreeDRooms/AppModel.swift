@@ -1,4 +1,5 @@
 import Observation
+import SwiftUI
 import UIKit
 import WebKit
 
@@ -156,8 +157,11 @@ final class SceneDelegate: NSObject, UIWindowSceneDelegate {
     func sceneWillResignActive(_ scene: UIScene) {
         guard AppLock.shared.enabled, let scene = scene as? UIWindowScene else { return }
         let cover = UIWindow(windowScene: scene)
-        cover.rootViewController = UIViewController()
-        cover.rootViewController?.view.backgroundColor = .black
+        let controller = UIHostingController(rootView: LockScreen(appLock: .shared))
+        controller.view.backgroundColor = UIColor(Theme.background)
+        cover.rootViewController = controller
+        cover.isUserInteractionEnabled = false
+        cover.accessibilityElementsHidden = true
         cover.windowLevel = .alert + 1
         cover.isHidden = false
         privacyWindow = cover
