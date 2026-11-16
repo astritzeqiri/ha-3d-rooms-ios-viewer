@@ -58,12 +58,12 @@ struct RoomScreen: View {
         }
         .statusBarHidden()
         .persistentSystemOverlays(.hidden)
-        .task(id: [view.id, String(attempt), model.connectionURL?.absoluteString, String(appLock.locked)]) { await load() }
+        .task(id: [view.id, String(attempt), model.connectionURL?.absoluteString]) { await load() }
         .task { await hintOnce() }
     }
 
     private func load() async {
-        guard !appLock.locked, let server = model.connectionURL, let loginOrigin = model.server else { return }
+        guard let server = model.connectionURL, let loginOrigin = model.server else { return }
         let url = HomeAssistant.viewURL(server, viewID: view.id)
         if let page, page.url == url, page.attempt == attempt, failure == nil { return }
         pageReady = false
@@ -155,10 +155,11 @@ private struct RoomWebView: UIViewRepresentable {
     func updateUIView(_ container: UIView, context: Context) {
         guard let web = context.coordinator.web else { return }
         if locked {
+            // Prepare the document offscreen. A detached web view also keeps
+            // its controls out of the accessibility tree until authentication.
             web.removeFromSuperview()
-            return
-        }
-        if web.superview == nil {
+            web.frame = container.bounds
+        } else if web.superview == nil {
             web.frame = container.bounds
             container.addSubview(web)
         }
@@ -183,7 +184,7 @@ private struct RoomWebView: UIViewRepresentable {
             if let url = action.request.url, action.targetFrame?.isMainFrame != false,
                url.host() != parent.page.origin.host() || url.port != parent.page.origin.port,
                ["http", "https"].contains(url.scheme ?? "") {
-                UIApplication.shared.open(url)
+                if !parent.locked { UIApplication.shared.open(url) }
                 decisionHandler(.cancel)
                 return
             }

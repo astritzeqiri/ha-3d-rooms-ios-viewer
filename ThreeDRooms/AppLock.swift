@@ -8,7 +8,6 @@ final class AppLock {
     private static let preference = "requireFaceID"
     private(set) var enabled = UserDefaults.standard.bool(forKey: preference)
     private(set) var locked = UserDefaults.standard.bool(forKey: preference)
-    private(set) var canKeepRoomMounted = !UserDefaults.standard.bool(forKey: preference)
     private(set) var authenticating = false
     private(set) var message: String?
     private var automaticUnlockPending = true
@@ -38,7 +37,6 @@ final class AppLock {
     func unlock() async {
         guard locked else { return }
         if await authenticate(.deviceOwnerAuthentication, reason: "Unlock 3D Rooms.") {
-            canKeepRoomMounted = true
             locked = false
         }
     }
