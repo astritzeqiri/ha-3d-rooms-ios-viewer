@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="3300" height="2200" viewBox="0 0 3300 2200">
+<g id="Guides">
+<path id="Baseline-S" d="M 0 600 H 3300"/>
+<path id="Capline-S" d="M 0 500 H 3300"/>
+<path id="left-margin-Ultralight-S" d="M 200 470 v 160"/>
+<path id="right-margin-Ultralight-S" d="M 290 470 v 160"/>
+<path id="left-margin-Thin-S" d="M 535 470 v 160"/>
+<path id="right-margin-Thin-S" d="M 625 470 v 160"/>
+<path id="left-margin-Light-S" d="M 870 470 v 160"/>
+<path id="right-margin-Light-S" d="M 960 470 v 160"/>
+<path id="left-margin-Regular-S" d="M 1205 470 v 160"/>
+<path id="right-margin-Regular-S" d="M 1295 470 v 160"/>
+<path id="left-margin-Medium-S" d="M 1540 470 v 160"/>
+<path id="right-margin-Medium-S" d="M 1630 470 v 160"/>
+<path id="left-margin-Semibold-S" d="M 1875 470 v 160"/>
+<path id="right-margin-Semibold-S" d="M 1965 470 v 160"/>
+<path id="left-margin-Bold-S" d="M 2210 470 v 160"/>
+<path id="right-margin-Bold-S" d="M 2300 470 v 160"/>
+<path id="left-margin-Heavy-S" d="M 2545 470 v 160"/>
+<path id="right-margin-Heavy-S" d="M 2635 470 v 160"/>
+<path id="left-margin-Black-S" d="M 2880 470 v 160"/>
+<path id="right-margin-Black-S" d="M 2970 470 v 160"/>
+<path id="Baseline-M" d="M 0 1120 H 3300"/>
+<path id="Capline-M" d="M 0 1020 H 3300"/>
+<path id="left-margin-Ultralight-M" d="M 200 990 v 160"/>
+<path id="right-margin-Ultralight-M" d="M 290 990 v 160"/>
+<path id="left-margin-Thin-M" d="M 535 990 v 160"/>
+<path id="right-margin-Thin-M" d="M 625 990 v 160"/>
+<path id="left-margin-Light-M" d="M 870 990 v 160"/>
+<path id="right-margin-Light-M" d="M 960 990 v 160"/>
+<path id="left-margin-Regular-M" d="M 1205 990 v 160"/>
+<path id="right-margin-Regular-M" d="M 1295 990 v 160"/>
+<path id="left-margin-Medium-M" d="M 1540 990 v 160"/>
+<path id="right-margin-Medium-M" d="M 1630 990 v 160"/>
+<path id="left-margin-Semibold-M" d="M 1875 990 v 160"/>
+<path id="right-margin-Semibold-M" d="M 1965 990 v 160"/>
+<path id="left-margin-Bold-M" d="M 2210 990 v 160"/>
+<path id="right-margin-Bold-M" d="M 2300 990 v 160"/>
+<path id="left-margin-Heavy-M" d="M 2545 990 v 160"/>
+<path id="right-margin-Heavy-M" d="M 2635 990 v 160"/>
+<path id="left-margin-Black-M" d="M 2880 990 v 160"/>
+<path id="right-margin-Black-M" d="M 2970 990 v 160"/>
+<path id="Baseline-L" d="M 0 1700 H 3300"/>
+<path id="Capline-L" d="M 0 1600 H 3300"/>
+<path id="left-margin-Ultralight-L" d="M 200 1570 v 160"/>
+<path id="right-margin-Ultralight-L" d="M 290 1570 v 160"/>
+<path id="left-margin-Thin-L" d="M 535 1570 v 160"/>
+<path id="right-margin-Thin-L" d="M 625 1570 v 160"/>
+<path id="left-margin-Light-L" d="M 870 1570 v 160"/>
+<path id="right-margin-Light-L" d="M 960 1570 v 160"/>
+<path id="left-margin-Regular-L" d="M 1205 1570 v 160"/>
+<path id="right-margin-Regular-L" d="M 1295 1570 v 160"/>
+<path id="left-margin-Medium-L" d="M 1540 1570 v 160"/>
+<path id="right-margin-Medium-L" d="M 1630 1570 v 160"/>
+<path id="left-margin-Semibold-L" d="M 1875 1570 v 160"/>
+<path id="right-margin-Semibold-L" d="M 1965 1570 v 160"/>
+<path id="left-margin-Bold-L" d="M 2210 1570 v 160"/>
+<path id="right-margin-Bold-L" d="M 2300 1570 v 160"/>
+<path id="left-margin-Heavy-L" d="M 2545 1570 v 160"/>
+<path id="right-margin-Heavy-L" d="M 2635 1570 v 160"/>
+<path id="left-margin-Black-L" d="M 2880 1570 v 160"/>
+<path id="right-margin-Black-L" d="M 2970 1570 v 160"/>
+</g>
+<g id="Symbols">
+<g id="Ultralight-S" transform="translate(200 500)"><path d="M 43 2 L 43 46 L 3 69 L 3 25 Z M 47 2 L 87 25 L 87 69 L 47 46 Z M 45 53 L 78 72 L 45 91 L 12 72 Z"/></g>
+<g id="Thin-S" transform="translate(535 500)"><path d="M 43 2 L 43 46 L 3 69 L 3 25 Z M 47 2 L 87 25 L 87 69 L 47 46 Z M 45 53 L 78 72 L 45 91 L 12 72 Z"/></g>
+<g id="Light-S" transform="translate(870 500)"><path d="M 43 2 L 43 46 L 3 69 L 3 25 Z M 47 2 L 87 25 L 87 69 L 47 46 Z M 45 53 L 78 72 L 45 91 L 12 72 Z"/></g>
+<g id="Regular-S" transform="translate(1205 500)"><path d="M 43 2 L 43 46 L 3 69 L 3 25 Z M 47 2 L 87 25 L 87 69 L 47 46 Z M 45 53 L 78 72 L 45 91 L 12 72 Z"/></g>
+<g id="Medium-S" transform="translate(1540 500)"><path d="M 43 2 L 43 46 L 3 69 L 3 25 Z M 47 2 L 87 25 L 87 69 L 47 46 Z M 45 53 L 78 72 L 45 91 L 12 72 Z"/></g>
+<g id="Semibold-S" transform="translate(1875 500)"><path d="M 43 2 L 43 46 L 3 69 L 3 25 Z M 47 2 L 87 25 L 87 69 L 47 46 Z M 45 53 L 78 72 L 45 91 L 12 72 Z"/></g>
+<g id="Bold-S" transform="translate(2210 500)"><path d="M 43 2 L 43 46 L 3 69 L 3 25 Z M 47 2 L 87 25 L 87 69 L 47 46 Z M 45 53 L 78 72 L 45 91 L 12 72 Z"/></g>
+<g id="Heavy-S" transform="translate(2545 500)"><path d="M 43 2 L 43 46 L 3 69 L 3 25 Z M 47 2 L 87 25 L 87 69 L 47 46 Z M 45 53 L 78 72 L 45 91 L 12 72 Z"/></g>
+<g id="Black-S" transform="translate(2880 500)"><path d="M 43 2 L 43 46 L 3 69 L 3 25 Z M 47 2 L 87 25 L 87 69 L 47 46 Z M 45 53 L 78 72 L 45 91 L 12 72 Z"/></g>
+<g id="Ultralight-M" transform="translate(200 1020)"><path d="M 43 2 L 43 46 L 3 69 L 3 25 Z M 47 2 L 87 25 L 87 69 L 47 46 Z M 45 53 L 78 72 L 45 91 L 12 72 Z"/></g>
+<g id="Thin-M" transform="translate(535 1020)"><path d="M 43 2 L 43 46 L 3 69 L 3 25 Z M 47 2 L 87 25 L 87 69 L 47 46 Z M 45 53 L 78 72 L 45 91 L 12 72 Z"/></g>
+<g id="Light-M" transform="translate(870 1020)"><path d="M 43 2 L 43 46 L 3 69 L 3 25 Z M 47 2 L 87 25 L 87 69 L 47 46 Z M 45 53 L 78 72 L 45 91 L 12 72 Z"/></g>
+<g id="Regular-M" transform="translate(1205 1020)"><path d="M 43 2 L 43 46 L 3 69 L 3 25 Z M 47 2 L 87 25 L 87 69 L 47 46 Z M 45 53 L 78 72 L 45 91 L 12 72 Z"/></g>
+<g id="Medium-M" transform="translate(1540 1020)"><path d="M 43 2 L 43 46 L 3 69 L 3 25 Z M 47 2 L 87 25 L 87 69 L 47 46 Z M 45 53 L 78 72 L 45 91 L 12 72 Z"/></g>
+<g id="Semibold-M" transform="translate(1875 1020)"><path d="M 43 2 L 43 46 L 3 69 L 3 25 Z M 47 2 L 87 25 L 87 69 L 47 46 Z M 45 53 L 78 72 L 45 91 L 12 72 Z"/></g>
+<g id="Bold-M" transform="translate(2210 1020)"><path d="M 43 2 L 43 46 L 3 69 L 3 25 Z M 47 2 L 87 25 L 87 69 L 47 46 Z M 45 53 L 78 72 L 45 91 L 12 72 Z"/></g>
+<g id="Heavy-M" transform="translate(2545 1020)"><path d="M 43 2 L 43 46 L 3 69 L 3 25 Z M 47 2 L 87 25 L 87 69 L 47 46 Z M 45 53 L 78 72 L 45 91 L 12 72 Z"/></g>
+<g id="Black-M" transform="translate(2880 1020)"><path d="M 43 2 L 43 46 L 3 69 L 3 25 Z M 47 2 L 87 25 L 87 69 L 47 46 Z M 45 53 L 78 72 L 45 91 L 12 72 Z"/></g>
+<g id="Ultralight-L" transform="translate(200 1600)"><path d="M 43 2 L 43 46 L 3 69 L 3 25 Z M 47 2 L 87 25 L 87 69 L 47 46 Z M 45 53 L 78 72 L 45 91 L 12 72 Z"/></g>
+<g id="Thin-L" transform="translate(535 1600)"><path d="M 43 2 L 43 46 L 3 69 L 3 25 Z M 47 2 L 87 25 L 87 69 L 47 46 Z M 45 53 L 78 72 L 45 91 L 12 72 Z"/></g>
+<g id="Light-L" transform="translate(870 1600)"><path d="M 43 2 L 43 46 L 3 69 L 3 25 Z M 47 2 L 87 25 L 87 69 L 47 46 Z M 45 53 L 78 72 L 45 91 L 12 72 Z"/></g>
+<g id="Regular-L" transform="translate(1205 1600)"><path d="M 43 2 L 43 46 L 3 69 L 3 25 Z M 47 2 L 87 25 L 87 69 L 47 46 Z M 45 53 L 78 72 L 45 91 L 12 72 Z"/></g>
+<g id="Medium-L" transform="translate(1540 1600)"><path d="M 43 2 L 43 46 L 3 69 L 3 25 Z M 47 2 L 87 25 L 87 69 L 47 46 Z M 45 53 L 78 72 L 45 91 L 12 72 Z"/></g>
+<g id="Semibold-L" transform="translate(1875 1600)"><path d="M 43 2 L 43 46 L 3 69 L 3 25 Z M 47 2 L 87 25 L 87 69 L 47 46 Z M 45 53 L 78 72 L 45 91 L 12 72 Z"/></g>
+<g id="Bold-L" transform="translate(2210 1600)"><path d="M 43 2 L 43 46 L 3 69 L 3 25 Z M 47 2 L 87 25 L 87 69 L 47 46 Z M 45 53 L 78 72 L 45 91 L 12 72 Z"/></g>
+<g id="Heavy-L" transform="translate(2545 1600)"><path d="M 43 2 L 43 46 L 3 69 L 3 25 Z M 47 2 L 87 25 L 87 69 L 47 46 Z M 45 53 L 78 72 L 45 91 L 12 72 Z"/></g>
+<g id="Black-L" transform="translate(2880 1600)"><path d="M 43 2 L 43 46 L 3 69 L 3 25 Z M 47 2 L 87 25 L 87 69 L 47 46 Z M 45 53 L 78 72 L 45 91 L 12 72 Z"/></g>
+</g>
+</svg>
