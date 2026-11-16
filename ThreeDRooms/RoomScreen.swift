@@ -58,13 +58,13 @@ struct RoomScreen: View {
         }
         .statusBarHidden()
         .persistentSystemOverlays(.hidden)
-        .task(id: [view.id, String(attempt), model.connectionURL?.absoluteString]) { await load() }
+        .task(id: [view.id, String(attempt), model.connectionURL?.absoluteString, model.roomDetail.rawValue]) { await load() }
         .task { await hintOnce() }
     }
 
     private func load() async {
         guard let server = model.connectionURL, let loginOrigin = model.server else { return }
-        let url = HomeAssistant.viewURL(server, viewID: view.id)
+        let url = HomeAssistant.viewURL(server, viewID: view.id, quality: model.roomDetail.quality)
         if let page, page.url == url, page.attempt == attempt, failure == nil { return }
         pageReady = false
         failure = nil
@@ -143,6 +143,12 @@ private struct RoomWebView: UIViewRepresentable {
         web.scrollView.contentInsetAdjustmentBehavior = .never
         web.scrollView.isScrollEnabled = false
         web.scrollView.bounces = false
+        // The page itself never zooms (a pinch or double tap enlarged the
+        // whole page, buttons and all). Pinches still reach the 3D room.
+        web.scrollView.delegate = context.coordinator
+        web.scrollView.minimumZoomScale = 1
+        web.scrollView.maximumZoomScale = 1
+        web.scrollView.pinchGestureRecognizer?.isEnabled = false
         web.allowsBackForwardNavigationGestures = false
         #if DEBUG
         web.isInspectable = true
@@ -169,10 +175,26 @@ private struct RoomWebView: UIViewRepresentable {
         let scripts = web.configuration.userContentController
         scripts.removeAllUserScripts()
         scripts.addUserScript(WKUserScript(source: page.script, injectionTime: .atDocumentStart, forMainFrameOnly: true))
+        scripts.addUserScript(WKUserScript(source: Self.noPageZoom, injectionTime: .atDocumentEnd, forMainFrameOnly: true))
         web.load(URLRequest(url: page.url))
     }
 
-    final class Coordinator: NSObject, WKNavigationDelegate {
+    /// Keeps double-tap and pinch from zooming the page (WebKit honours
+    /// `user-scalable=no` in an app's web view); the room's own pinch is unaffected.
+    static let noPageZoom = """
+    (() => {
+      let meta = document.querySelector('meta[name="viewport"]');
+      if (!meta) { meta = document.createElement('meta'); meta.name = 'viewport'; document.head.append(meta); }
+      const keep = (meta.content || 'width=device-width, initial-scale=1')
+        .split(',').map(s => s.trim())
+        .filter(s => s && !/^(maximum-scale|minimum-scale|user-scalable)=/.test(s));
+      meta.content = [...keep, 'minimum-scale=1', 'maximum-scale=1', 'user-scalable=no'].join(', ');
+    })();
+    """
+
+    final class Coordinator: NSObject, WKNavigationDelegate, UIScrollViewDelegate {
+        /// No page zoom: nothing in the web view's scroll view can be zoomed.
+        func viewForZooming(in scrollView: UIScrollView) -> UIView? { nil }
         var parent: RoomWebView
         var web: WKWebView?
         var loaded: PageLoad?

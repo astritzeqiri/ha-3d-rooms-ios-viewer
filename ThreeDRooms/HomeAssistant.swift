@@ -206,8 +206,10 @@ enum HomeAssistant {
     // MARK: The full-screen page
 
     /// The integration's own chrome-free page for one saved view.
-    static func viewURL(_ origin: URL, viewID: String) -> URL {
-        origin.appendingPathComponent("three_d_rooms_view").appendingPathComponent(viewID)
+    static func viewURL(_ origin: URL, viewID: String, quality: String? = nil) -> URL {
+        let page = origin.appendingPathComponent("three_d_rooms_view").appendingPathComponent(viewID)
+        guard let quality else { return page }
+        return page.appending(queryItems: [URLQueryItem(name: "quality", value: quality)])
     }
 
     /// Script that hands the login to the page before it starts. The page signs

@@ -4,6 +4,8 @@ An iPhone and iPad viewer for the [3D Rooms Home Assistant integration](https://
 
 To protect your rooms on a shared device, open the view picker, tap the settings gear and turn on **Require Face ID**. Once enabled, the app locks whenever you leave it. You can use your device passcode as a fallback or turn the setting off in the same place.
 
+In **Settings → Room detail**, choose how much model detail the room loads: **As set in the view** (the view's Room detail in Home Assistant; lighter on phones unless changed), **Full detail**, or **Lighter (less data)**. Rooms stay on the device after the first download, so full detail costs data only once. Full detail needs 3D Rooms 0.48.1 or later in Home Assistant; older versions ignore the setting.
+
 In **Settings → Home Wi-Fi**, enter the exact Wi-Fi name and the internal URL of the same Home Assistant server. Allow precise location while using the app so iOS can share the network name. On other networks or when the name is unavailable, the app uses the address you signed in with. Use **Remove home network** to return to a single address.
 
 ## Build and run from source

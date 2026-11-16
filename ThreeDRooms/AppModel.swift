@@ -35,6 +35,12 @@ final class AppModel {
         }
     }
 
+    /// How much model detail the room loads. Rooms are kept on the device
+    /// after the first download, so full detail costs data only once.
+    var roomDetail: RoomDetail = .view {
+        didSet { defaults.set(roomDetail.rawValue, forKey: "roomDetail") }
+    }
+
     var views: [SavedView] = []
     var listState = ListState.idle
     /// The view list over the room (edge swipe or the "Switch view" quick action).
@@ -45,6 +51,7 @@ final class AppModel {
         tokens = Keychain.load()
         defaultView = defaults.data(forKey: "defaultView").flatMap { try? JSONDecoder().decode(ViewRef.self, from: $0) }
         keepScreenOn = defaults.bool(forKey: "keepScreenOn")
+        roomDetail = RoomDetail(rawValue: defaults.string(forKey: "roomDetail") ?? "") ?? .view
         UIApplication.shared.isIdleTimerDisabled = keepScreenOn
     }
 
@@ -191,4 +198,20 @@ final class SceneDelegate: NSObject, UIWindowSceneDelegate {
             completionHandler(true)
         }
     }
+}
+
+/// The Room detail setting: follow the saved view, or force full or lighter
+/// detail. Sent to the integration's full-screen page as `?quality=`.
+enum RoomDetail: String, CaseIterable, Identifiable {
+    case view, high, low
+    var id: String { rawValue }
+    var label: String {
+        switch self {
+        case .view: "As set in the view"
+        case .high: "Full detail"
+        case .low: "Lighter (less data)"
+        }
+    }
+    /// The page's `quality` value, or nil to use the view's own setting.
+    var quality: String? { self == .view ? nil : rawValue }
 }

@@ -119,6 +119,13 @@ struct SettingsView: View {
                 Button("Sign out", role: .destructive) { confirmSignOut = true }
             }
             Section {
+                Picker("Room detail", selection: $model.roomDetail) {
+                    ForEach(RoomDetail.allCases) { Text($0.label).tag($0) }
+                }
+            } footer: {
+                Text("Rooms stay on this device after the first download, so full detail costs data only once. \"As set in the view\" follows the view's Room detail in Home Assistant (lighter on phones unless changed).")
+            }
+            Section {
                 Toggle("Keep screen on", isOn: $model.keepScreenOn)
             } footer: {
                 Text("Useful for a wall-mounted iPad or a phone on a stand.")
