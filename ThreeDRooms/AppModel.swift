@@ -155,7 +155,14 @@ final class SceneDelegate: NSObject, UIWindowSceneDelegate {
     private var privacyWindow: UIWindow?
 
     func sceneWillResignActive(_ scene: UIScene) {
-        guard AppLock.shared.enabled, let scene = scene as? UIWindowScene else { return }
+        // Face ID temporarily makes the scene inactive. The lock screen
+        // already covers this transition and can dismiss on a successful match.
+        guard !AppLock.shared.locked else { return }
+        coverPrivateContent(in: scene)
+    }
+
+    private func coverPrivateContent(in scene: UIScene) {
+        guard privacyWindow == nil, AppLock.shared.enabled, let scene = scene as? UIWindowScene else { return }
         let cover = UIWindow(windowScene: scene)
         let controller = UIHostingController(rootView: LockScreen(appLock: .shared))
         controller.view.backgroundColor = UIColor(Theme.background)
@@ -168,6 +175,7 @@ final class SceneDelegate: NSObject, UIWindowSceneDelegate {
     }
 
     func sceneDidEnterBackground(_ scene: UIScene) {
+        coverPrivateContent(in: scene)
         AppLock.shared.enteredBackground()
     }
 
