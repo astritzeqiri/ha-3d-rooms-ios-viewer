@@ -136,6 +136,9 @@ private struct RoomWebView: UIViewRepresentable {
         configuration.mediaTypesRequiringUserActionForPlayback = []
         let web = WKWebView(frame: .zero, configuration: configuration)
         web.navigationDelegate = context.coordinator
+        // New-tab requests (the dialog's settings gear and ⋮ menu) need a UI
+        // delegate; without one WebKit silently drops them.
+        web.uiDelegate = context.coordinator
         web.isOpaque = false
         web.backgroundColor = UIColor(Theme.background)
         web.scrollView.backgroundColor = UIColor(Theme.background)
@@ -192,7 +195,7 @@ private struct RoomWebView: UIViewRepresentable {
     })();
     """
 
-    final class Coordinator: NSObject, WKNavigationDelegate, UIScrollViewDelegate {
+    final class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate, UIScrollViewDelegate {
         /// No page zoom: nothing in the web view's scroll view can be zoomed.
         func viewForZooming(in scrollView: UIScrollView) -> UIView? { nil }
         var parent: RoomWebView
@@ -202,15 +205,56 @@ private struct RoomWebView: UIViewRepresentable {
 
         func webView(_ webView: WKWebView, decidePolicyFor action: WKNavigationAction,
                      decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-            // Links away from Home Assistant open in Safari, never inside the app.
-            if let url = action.request.url, action.targetFrame?.isMainFrame != false,
-               url.host() != parent.page.origin.host() || url.port != parent.page.origin.port,
-               ["http", "https"].contains(url.scheme ?? "") {
-                if !parent.locked { UIApplication.shared.open(url) }
+            guard let url = action.request.url, ["http", "https"].contains(url.scheme ?? "") else {
+                decisionHandler(.allow)
+                return
+            }
+            // A new tab, or a link away from Home Assistant, leaves the app;
+            // the room page itself stays here.
+            if action.targetFrame == nil || (action.targetFrame?.isMainFrame == true && !isHomeAssistant(url)) {
+                openOutside(url)
                 decisionHandler(.cancel)
                 return
             }
             decisionHandler(.allow)
+        }
+
+        /// `window.open` from the page (the dialog's settings gear and ⋮ menu
+        /// items open Home Assistant "in a new tab"). There are no tabs here.
+        func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration,
+                     for action: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
+            if let url = action.request.url, ["http", "https"].contains(url.scheme ?? "") {
+                openOutside(url)
+            }
+            return nil
+        }
+
+        private func isHomeAssistant(_ url: URL) -> Bool {
+            url.host() == parent.page.origin.host() && url.port == parent.page.origin.port
+        }
+
+        /// Home Assistant pages (entity settings, device info, related, …)
+        /// open in the Home Assistant Companion app at the same path; without
+        /// it, or for any other site, in Safari.
+        private func openOutside(_ url: URL) {
+            guard !parent.locked else { return }
+            guard isHomeAssistant(url), let companion = Self.companionURL(for: url) else {
+                UIApplication.shared.open(url)
+                return
+            }
+            UIApplication.shared.open(companion) { opened in
+                if !opened { UIApplication.shared.open(url) }
+            }
+        }
+
+        /// `homeassistant://navigate/<path>?<query>`: the Companion app opens
+        /// that page on its own server, signed in with its own account.
+        static func companionURL(for url: URL) -> URL? {
+            guard let parts = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return nil }
+            var path = parts.percentEncodedPath
+            if path.hasPrefix("/") { path.removeFirst() }
+            let query = parts.percentEncodedQuery.map { "?\($0)" } ?? ""
+            return URL(string: "homeassistant://navigate/\(path)\(query)")
         }
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {

@@ -8,6 +8,8 @@ In **Settings → Room detail**, choose how much model detail the room loads: **
 
 In **Settings → Home Wi-Fi**, enter the exact Wi-Fi name and the internal URL of the same Home Assistant server. Allow precise location while using the app so iOS can share the network name. On other networks or when the name is unavailable, the app uses the address you signed in with. Use **Remove home network** to return to a single address.
 
+In a device's pop-up, the settings gear and the ⋮ menu (Device info, Related, Details, Add to…) open that page in the Home Assistant app, using the server and login set up there. Without the Home Assistant app, they open in Safari.
+
 ## Build and run from source
 
 1. On a Mac, install Xcode with the iOS SDK and an iPhone simulator runtime. Build 3 was compiled with Xcode 27.2. The viewer requires iOS or iPadOS 17 or later.
